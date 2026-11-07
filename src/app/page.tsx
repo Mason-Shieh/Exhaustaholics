@@ -1,8 +1,9 @@
 import ShopWorkspace from "@/components/shop-workspace";
 import { seedVehicles } from "../../data/seed/vehicles";
 
-const vehicles = seedVehicles.map((vehicle) => ({
+const vehicles = seedVehicles.map((vehicle, index) => ({
   id: vehicle.id,
+  ownerId: `demo-customer-${(index % 5) + 1}`,
   year: vehicle.year,
   make: vehicle.make,
   model: vehicle.model,

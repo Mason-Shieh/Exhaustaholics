@@ -17,3 +17,6 @@
 - Approved design revisions, approvals, and status events are immutable in PostgreSQL. Revisions after approval require a new row and revision number.
 - Vehicle envelopes are generic class templates and are marked sample/parametric. Their dimensions are not verified vehicle specifications and must not be presented as precise fitment data.
 - Sample catalog and price book values are illustrative only. No material price or density is a shop quote until that shop configures and verifies its own inputs.
+- Use Clerk for hosted authentication. It is installed behind `AUTH_MODE=clerk`, with the Next.js 16 `proxy.ts` convention and Clerk's current App Router provider. Clerk keys are required when that mode is selected; they are not required in the default `mock` mode.
+- Mock auth exposes only fixed, non-secret demo personas through an HTTP-only, same-site role cookie. Customer and fabricator demo data is scoped in the UI and pure scope helpers. This mock is for sample records only; it is not an authentication substitute for real customer/shop data.
+- Real Clerk identity-to-shop membership lookup and database-backed session authorization remain incomplete until a database is configured and the Clerk application keys are provisioned.

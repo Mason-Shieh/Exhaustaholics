@@ -41,7 +41,7 @@ function routeTouchesKeepOut(nodes: readonly PipeNode[], view: ViewMode): boolea
   });
 }
 
-export default function DesignerView({ projectName, vehicleName }: { projectName: string; vehicleName: string }) {
+export default function DesignerView({ projectName, vehicleName, editable }: { projectName: string; vehicleName: string; editable: boolean }) {
   const [nodes, setNodes] = useState(initialNodes);
   const [selectedNodeId, setSelectedNodeId] = useState("B");
   const [view, setView] = useState<ViewMode>("plan");
@@ -52,11 +52,12 @@ export default function DesignerView({ projectName, vehicleName }: { projectName
   const [past, setPast] = useState<PipeNode[][]>([]);
   const [future, setFuture] = useState<PipeNode[][]>([]);
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
-  const [readOnly, setReadOnly] = useState(false);
+  const [phoneReadOnly, setPhoneReadOnly] = useState(false);
+  const readOnly = phoneReadOnly || !editable;
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 720px)");
-    const updateReadOnly = () => setReadOnly(media.matches);
+    const updateReadOnly = () => setPhoneReadOnly(media.matches);
     updateReadOnly();
     media.addEventListener("change", updateReadOnly);
     return () => media.removeEventListener("change", updateReadOnly);

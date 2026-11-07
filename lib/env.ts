@@ -23,7 +23,10 @@ const envSchema = z.object({
   S3_ACCESS_KEY_ID: optionalSecret,
   S3_SECRET_ACCESS_KEY: optionalSecret,
   RESEND_API_KEY: optionalSecret,
-});
+}).refine(
+  (values) => values.AUTH_MODE === "mock" || Boolean(values.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && values.CLERK_SECRET_KEY),
+  { message: "AUTH_MODE=clerk requires both Clerk keys." },
+);
 
 export const env = envSchema.parse(process.env);
 export type AppEnvironment = z.infer<typeof envSchema>;
