@@ -20,6 +20,7 @@ interface Vehicle {
   trim: string;
   engine: string;
   envelope: string;
+  sample: boolean;
 }
 
 interface Project {
@@ -36,13 +37,6 @@ interface Project {
   exitStyle: string;
   updated: string;
 }
-
-const sampleVehicles: Vehicle[] = [
-  { id: "v1", year: 2021, make: "Ford", model: "Mustang GT", trim: "Premium", engine: "5.0L V8", envelope: "Parametric envelope" },
-  { id: "v2", year: 2020, make: "BMW", model: "M340i", trim: "xDrive", engine: "3.0L turbo I6", envelope: "Parametric envelope" },
-  { id: "v3", year: 2018, make: "Subaru", model: "WRX STI", trim: "Limited", engine: "2.5L turbo flat-4", envelope: "Parametric envelope" },
-  { id: "v4", year: 2023, make: "Chevrolet", model: "Corvette Stingray", trim: "3LT", engine: "6.2L V8", envelope: "Parametric envelope" },
-];
 
 const starterProjects: Project[] = [
   { id: "EX-2048", name: "Street touring system", customer: "Jordan Lee", vehicleId: "v2", status: "quote_pending", totalCents: 278250, soundLevel: 5, soundPreference: "deep", performancePriority: "medium", budgetBand: "2000", exitStyle: "dual", updated: "18 min ago" },
@@ -75,10 +69,10 @@ const vehicleLabel = (vehicle?: Vehicle) => vehicle
   ? `${vehicle.year} ${vehicle.make} ${vehicle.model}`
   : "Vehicle not selected";
 
-export default function ShopWorkspace() {
+export default function ShopWorkspace({ initialVehicles }: { initialVehicles: Vehicle[] }) {
   const [view, setView] = useState<WorkspaceView>("overview");
   const [projects, setProjects] = useState(starterProjects);
-  const [vehicles, setVehicles] = useState(sampleVehicles);
+  const [vehicles, setVehicles] = useState(initialVehicles);
   const [search, setSearch] = useState("");
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [newVehicleOpen, setNewVehicleOpen] = useState(false);
@@ -127,6 +121,7 @@ export default function ShopWorkspace() {
       trim: String(values.get("trim") || "Manual entry"),
       engine: String(values.get("engine") || "Not specified"),
       envelope: "Manual entry",
+      sample: false,
     }, ...current]);
     setNewVehicleOpen(false);
   }
@@ -178,13 +173,13 @@ export default function ShopWorkspace() {
               <article className="metric-card"><div className="metric-label">Active builds</div><div className="metric-value tabular">{projects.filter((project) => project.status === "in_build").length.toString().padStart(2, "0")}</div><div className="metric-foot"><span className="metric-dot green" /> In the shop</div></article>
               <article className="metric-card"><div className="metric-label">Completed this month</div><div className="metric-value tabular">06</div><div className="metric-foot"><span className="metric-dot silver" /> Sample shop history</div></article>
             </section>
-            <PipelineBoard projects={filteredProjects} onOpen={setSelectedProject} onViewAll={() => setView("projects")} />
+            <PipelineBoard projects={filteredProjects} vehicles={vehicles} onOpen={setSelectedProject} onViewAll={() => setView("projects")} />
             <div className="workspace-footnote">Design tool. Always verify measurements and fit before fabrication.</div>
           </>}
 
-          {view === "projects" && <><div className="section-toolbar"><div><b>Project pipeline</b><span>{filteredProjects.length} projects · values are sample estimates</span></div><button className="quiet-button" type="button"><span className="filter-glyph" /> Filter</button></div><PipelineBoard projects={filteredProjects} onOpen={setSelectedProject} /><div className="workspace-footnote">Approved revisions are immutable. Changes require a new revision and approval.</div></>}
+          {view === "projects" && <><div className="section-toolbar"><div><b>Project pipeline</b><span>{filteredProjects.length} projects · values are sample estimates</span></div><button className="quiet-button" type="button"><span className="filter-glyph" /> Filter</button></div><PipelineBoard projects={filteredProjects} vehicles={vehicles} onOpen={setSelectedProject} /><div className="workspace-footnote">Approved revisions are immutable. Changes require a new revision and approval.</div></>}
 
-          {view === "garage" && <section className="data-section"><div className="section-toolbar"><div><b>Customer garage</b><span>Vehicle specs and envelope provenance</span></div><button className="quiet-button" onClick={() => setNewVehicleOpen(true)} type="button"><Plus size={15} /> Add vehicle</button></div><div className="table-wrap"><table className="data-table"><thead><tr><th>Vehicle</th><th>Trim / engine</th><th>Data source</th><th>Projects</th><th /></tr></thead><tbody>{vehicles.map((vehicle) => <tr key={vehicle.id}><td><div className="vehicle-cell"><span className="vehicle-icon"><CarFront aria-hidden="true" size={18} /></span><span><b>{vehicleLabel(vehicle)}</b><small>{vehicle.envelope === "Parametric envelope" ? "Sample record" : "Manual entry"}</small></span></div></td><td><b>{vehicle.trim}</b><small>{vehicle.engine}</small></td><td><span className={`source-badge ${vehicle.envelope === "Parametric envelope" ? "source-parametric" : "source-manual"}`}><span />{vehicle.envelope}</span></td><td className="tabular">{projects.filter((project) => project.vehicleId === vehicle.id).length}</td><td><button className="text-action" onClick={() => setNewProjectOpen(true)} type="button">New project <ArrowRight size={14} /></button></td></tr>)}</tbody></table></div><p className="table-disclaimer">Parametric envelopes are class-based approximations, not vehicle scans. Confirm measurements on the vehicle.</p></section>}
+          {view === "garage" && <section className="data-section"><div className="section-toolbar"><div><b>Customer garage</b><span>{vehicles.length} vehicles · vehicle specs and envelope provenance</span></div><button className="quiet-button" onClick={() => setNewVehicleOpen(true)} type="button"><Plus size={15} /> Add vehicle</button></div><div className="table-wrap"><table className="data-table"><thead><tr><th>Vehicle</th><th>Trim / engine</th><th>Data source</th><th>Projects</th><th /></tr></thead><tbody>{vehicles.map((vehicle) => <tr key={vehicle.id}><td><div className="vehicle-cell"><span className="vehicle-icon"><CarFront aria-hidden="true" size={18} /></span><span><b>{vehicleLabel(vehicle)}</b><small>{vehicle.sample ? "Sample record" : "Manual entry"}</small></span></div></td><td><b>{vehicle.trim}</b><small>{vehicle.engine}</small></td><td><span className={`source-badge ${vehicle.envelope === "Parametric envelope" ? "source-parametric" : "source-manual"}`}><span />{vehicle.envelope}</span></td><td className="tabular">{projects.filter((project) => project.vehicleId === vehicle.id).length}</td><td><button className="text-action" onClick={() => setNewProjectOpen(true)} type="button">New project <ArrowRight size={14} /></button></td></tr>)}</tbody></table></div><p className="table-disclaimer">Parametric envelopes are class-based approximations, not vehicle scans. Confirm measurements on the vehicle.</p></section>}
 
           {view === "quotes" && <QuoteLedger />}
           {view === "reports" && <ReportsPanel projectCount={projects.length} />}
@@ -199,8 +194,8 @@ export default function ShopWorkspace() {
   );
 }
 
-function PipelineBoard({ projects, onOpen, onViewAll }: { projects: Project[]; onOpen: (project: Project) => void; onViewAll?: () => void }) {
-  return <section className="pipeline-section"><div className="section-toolbar"><div><b>Project pipeline</b><span>Design approval before fabrication</span></div>{onViewAll && <button className="text-action" onClick={onViewAll} type="button">View all projects <ArrowRight size={14} /></button>}</div><div className="pipeline-board">{stages.map(({ id, title, icon: Icon }) => { const items = projects.filter((project) => project.status === id); return <section className="pipeline-column" key={id} aria-label={`${title}, ${items.length} projects`}><div className="column-heading"><span className={`stage-icon stage-${id}`}><Icon aria-hidden="true" size={15} /></span><h2>{title}</h2><span className="column-count">{items.length}</span><button className="more-button" type="button" aria-label={`More ${title} actions`}><span>···</span></button></div><div className="column-cards">{items.map((project) => <button className="project-card" key={project.id} onClick={() => onOpen(project)} type="button"><div className="project-card-top"><span className="project-id">{project.id}</span><ArrowUpRight aria-hidden="true" size={15} /></div><strong>{project.name}</strong><span className="project-vehicle">{vehicleLabel(sampleVehicles.find((vehicle) => vehicle.id === project.vehicleId))}</span><div className="project-card-footer"><span>{project.customer}</span><b className="tabular">{project.totalCents === 0 ? "Not set" : formatMoney(project.totalCents)}</b></div><div className="project-card-meta"><span className="sample-mark"><span /> Sample</span><span>{project.updated}</span></div></button>)}{items.length === 0 && <div className="empty-column">No projects in this stage</div>}</div></section>; })}</div></section>;
+function PipelineBoard({ projects, vehicles, onOpen, onViewAll }: { projects: Project[]; vehicles: Vehicle[]; onOpen: (project: Project) => void; onViewAll?: () => void }) {
+  return <section className="pipeline-section"><div className="section-toolbar"><div><b>Project pipeline</b><span>Design approval before fabrication</span></div>{onViewAll && <button className="text-action" onClick={onViewAll} type="button">View all projects <ArrowRight size={14} /></button>}</div><div className="pipeline-board">{stages.map(({ id, title, icon: Icon }) => { const items = projects.filter((project) => project.status === id); return <section className="pipeline-column" key={id} aria-label={`${title}, ${items.length} projects`}><div className="column-heading"><span className={`stage-icon stage-${id}`}><Icon aria-hidden="true" size={15} /></span><h2>{title}</h2><span className="column-count">{items.length}</span><button className="more-button" type="button" aria-label={`More ${title} actions`}><span>···</span></button></div><div className="column-cards">{items.map((project) => <button className="project-card" key={project.id} onClick={() => onOpen(project)} type="button"><div className="project-card-top"><span className="project-id">{project.id}</span><ArrowUpRight aria-hidden="true" size={15} /></div><strong>{project.name}</strong><span className="project-vehicle">{vehicleLabel(vehicles.find((vehicle) => vehicle.id === project.vehicleId))}</span><div className="project-card-footer"><span>{project.customer}</span><b className="tabular">{project.totalCents === 0 ? "Not set" : formatMoney(project.totalCents)}</b></div><div className="project-card-meta"><span className="sample-mark"><span /> Sample</span><span>{project.updated}</span></div></button>)}{items.length === 0 && <div className="empty-column">No projects in this stage</div>}</div></section>; })}</div></section>;
 }
 
 function ProjectDialog({ onClose, onSubmit, soundLevel, setSoundLevel, vehicles }: { onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void; soundLevel: number; setSoundLevel: (value: number) => void; vehicles: Vehicle[] }) {

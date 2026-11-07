@@ -1,0 +1,52 @@
+import type { PriceBookRates } from "../../lib/db/schema";
+
+export const samplePriceBook: PriceBookRates & { name: string; isSample: true; currency: "USD" } = {
+  name: "Sample shop price book",
+  isSample: true,
+  currency: "USD",
+  materialCentsPerInch: {
+    "ss304-2.0": 185,
+    "ss304-2.5": 245,
+    "ss304-3.0": 320,
+    "aluminized-2.0": 95,
+    "aluminized-2.5": 125,
+    "aluminized-3.0": 165,
+    "titanium-2.0": 475,
+    "titanium-2.5": 625,
+    "titanium-3.0": 810,
+  },
+  componentCents: {
+    "catalytic-converter": 32500,
+    resonator: 14500,
+    muffler: 21800,
+    "x-pipe": 12900,
+    "h-pipe": 11900,
+    "y-pipe": 9900,
+    "turn-down": 4800,
+    "exhaust-tip": 8900,
+    "valve-system": 89500,
+    "v-band": 3200,
+    flange: 2500,
+  },
+  hourlyRateCents: 10000,
+  baseHours: 2,
+  perBendHours: 0.5,
+  perComponentHours: 0.25,
+  perExitHours: 0.75,
+  consumablesRate: 0.05,
+  markupRate: 0.25,
+  taxRate: 0.06,
+};
+
+export const unconfiguredPriceBook: PriceBookRates = {
+  materialCentsPerInch: {},
+  componentCents: {},
+  hourlyRateCents: null,
+  baseHours: null,
+  perBendHours: null,
+  perComponentHours: null,
+  perExitHours: null,
+  consumablesRate: null,
+  markupRate: null,
+  taxRate: null,
+};
