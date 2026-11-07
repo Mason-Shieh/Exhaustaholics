@@ -1,7 +1,5 @@
+import ShopWorkspace from "@/components/shop-workspace";
+
 export default function Home() {
-  return (
-    <main>
-      <div>Hello world!</div>
-    </main>
-  );
+  return <ShopWorkspace />;
 }
